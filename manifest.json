@@ -1,0 +1,20 @@
+{
+
+    "manifest_version": 2,
+    "name": "TabShui",
+    "version": "1.0",
+  
+    "description": "Limits the amount of possible tabs open",
+  
+    "icons": {
+      "48": "icons/border-48.png"
+    },
+    
+    "background":{
+      "scripts": ["close-tabs.js"]
+    },
+    "permissions":[
+      "tabs"
+    ]
+  
+  }
