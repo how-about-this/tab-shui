@@ -1,9 +1,4 @@
 
-const CONFIGURATION = {
-    max_tabs: 5,
-    max_windows: 3
-}
-
 function onRemoved(){
     console.log("Tab removed");
 }

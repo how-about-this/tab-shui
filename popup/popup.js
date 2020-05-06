@@ -1,12 +1,5 @@
-function saveOptions(e) {
-    e.preventDefault();
-    browser.storage.sync.set({
-      max_tabs: document.querySelector("#max_tabs").value,
-      max_windwos: document.querySelector("#max_windows").value
-    });
-  }
 
-function save(){
+function saveOptions(){
     let max_tabs = parseInt(document.querySelector("#max_tabs").value);
     let max_windows = parseInt(document.querySelector("#max_windows").value);
     if(max_tabs !== NaN && max_windows !== NaN){
@@ -34,6 +27,5 @@ function save(){
   }
   
   document.addEventListener("DOMContentLoaded", restoreOptions);
-  /* document.querySelector("form").addEventListener("submit", saveOptions); */
-  document.querySelector("#max_tabs").addEventListener("change", save);
-  document.querySelector("#max_windows").addEventListener("change", save);
+  document.querySelector("#max_tabs").addEventListener("change", saveOptions);
+  document.querySelector("#max_windows").addEventListener("change", saveOptions);
