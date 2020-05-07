@@ -2,10 +2,15 @@
 function onRemoved(){
     console.log("Tab removed");
 }
+
 function onUpdatedTab(tab){
     console.log(`Tab ${tab.id} redirected`);
     setTimeout(()=>browser.tabs.remove(tab.id), 1000);
 }
+
+
+ // Redirect the active tab to 
+    // an info page and close the window shortly after 
 async function onUpdatedWindow(window){
     window = await browser.windows.get(window.id,{populate:true})
     console.log(`Window ${window.id}, first tab ${window.tabs[0].id} redirecting`);
@@ -19,11 +24,12 @@ function onError(message){
     return (error) => console.log(`Error from ${message}: ${error}`);
 }
 
-// Functions to get user defined values from stoarge
+// Function to get user defined values from stoarge
 async function getOptions(){
-    result = await browser.storage.sync.get(["max_tabs","max_windows"]);
-    result.max_tabs = result.max_tabs ? parseInt(result.max_tabs) : 5;
-    result.max_windows = result.max_windows ? parseInt(result.max_windows) : 3;
+    result = await browser.storage.local.get(["maxTabs","maxWindows"]);
+    
+    result.maxTabs = result.maxTabs ? parseInt(result.maxTabs) : 5;
+    result.maxWindows = result.maxWindows ? parseInt(result.maxWindows) : 3;
     return result;
 }
 
@@ -33,26 +39,27 @@ async function handleCreatedTab(tab){
     if(tab.id === browser.tabs.TAB_ID_NONE){ return; }
     let tabs = await browser.tabs.query({currentWindow: true})
     let options = await getOptions()
-    if(tabs.length > options.max_tabs+1){
-        browser.tabs.remove(tab.id).then(onRemoved, onError('removing'));
-    }
-    if(tabs.length == options.max_tabs+1){
+    // First Tab that exeeds limit will redirect to an 
+    // info page and close shortly afterwards
+    if(tabs.length == options.maxTabs + 1){
         browser.tabs.update(
             tab.id,
             {url: "substitute-page/tabs_exceeded.html"})
             .then(onUpdatedTab, onError('redirecting'));
     }
+    // Every Tab after the first exceeding tab will be closed without feedback
+    if(tabs.length > options.maxTabs + 1){
+        browser.tabs.remove(tab.id).then(onRemoved, onError('removing'));
+    }
+
 };
 
 // Close new window if number of tabs exceed specified limit
 async function handleCreatedWindow(window){
-    console.log("Window created with ID: " + window.id);
     let windows = await browser.windows.getAll();
-    console.log("Windows " + windows);
     let options = await getOptions();
-    console.log(`max_windows: ${options.max_windows}`);
-    if(windows.length > options.max_windows){
-        console.log(`Window ${window.id} updating entered`);
+   // Windows exceeding the limit will trigger closing pipeline
+    if(windows.length > options.maxWindows){
         browser.windows.update(
             window.id,
             {focused: true})
@@ -60,10 +67,6 @@ async function handleCreatedWindow(window){
     }
 };
 
-function handleUpdated(tabId, changeInfo, tab){
-
-}
-
-
+// Add handlers to Events
 browser.tabs.onCreated.addListener(handleCreatedTab);
 browser.windows.onCreated.addListener(handleCreatedWindow);
