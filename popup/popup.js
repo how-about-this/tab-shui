@@ -5,7 +5,7 @@ function saveOptions(){
     if(max_tabs !== NaN && max_windows !== NaN){
         browser.storage.sync.set({
             max_tabs: document.querySelector("#max_tabs").value,
-            max_windwos: document.querySelector("#max_windows").value
+            max_windows: document.querySelector("#max_windows").value
         });
     }
   }
@@ -22,10 +22,17 @@ function saveOptions(){
       console.log(`Error: ${error}`);
     }
   
-    let getting = browser.storage.sync.get(["max_tabs","max_windows"]);
+    let getting = browser.storage.sync.get(["max_tabs","max_windows"]); 
     getting.then(setCurrentChoice, onError);
   }
   
+//Just for Debugging
+function mockRestoreOptions(){
+    document.querySelector("#max_tabs").value = "5";
+    document.querySelector("#max_windows").value = "3";
+
+}
+
   document.addEventListener("DOMContentLoaded", restoreOptions);
   document.querySelector("#max_tabs").addEventListener("change", saveOptions);
   document.querySelector("#max_windows").addEventListener("change", saveOptions);

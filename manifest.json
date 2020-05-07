@@ -7,23 +7,25 @@
     "description": "Limits the amount of possible tabs open",
   
     "icons": {
-      "48": "icons/border-48.png"
+      "48": "icons/tabs.svg"
     },
     
     "background":{
-      "scripts": ["close-tabs.js"]
+      "scripts": ["background.js"]
     },
 
     "permissions":[
       "tabs",
       "storage"
     ],
-    
+
     "browser_action": {
-      "default_icon": "icons/border-48.png",
+      "browser_style": true,
+      "default_icon": "icons/tabs.svg",
       "default_title": "Tab Shui",
       "default_popup": "popup/popup.html"
     },
+
     "browser_specific_settings": {
       "gecko": {
         "id": "tab_shui@example.com"
