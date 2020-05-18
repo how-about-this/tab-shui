@@ -8,6 +8,9 @@ function onUpdatedTab(tab){
     setTimeout(()=>browser.tabs.remove(tab.id), 1000);
 }
 
+function onError(message){
+    return (error) => console.log(`Error from ${message}: ${error}`);
+}
 
  // Redirect the active tab to 
     // an info page and close the window shortly after 
@@ -20,15 +23,13 @@ async function onUpdatedWindow(window){
     setTimeout(()=>browser.windows.remove(window.id), 1000);
 }
 
-function onError(message){
-    return (error) => console.log(`Error from ${message}: ${error}`);
-}
+
 
 // Function to get user defined values from stoarge
-async function getOptions(){
-    result = await browser.storage.local.get(["maxTabs","maxWindows"]);
-    
-    result.maxTabs = result.maxTabs ? parseInt(result.maxTabs) : 5;
+async function getOptions(windowId){
+    let maxTabsKey = "maxTabs_"+ windowId.toString();
+    let result = await browser.storage.local.get([maxTabsKey,"maxWindows"]); 
+    result.maxTabs = result[maxTabsKey] ? parseInt(result[maxTabsKey]) : 5;
     result.maxWindows = result.maxWindows ? parseInt(result.maxWindows) : 3;
     return result;
 }
@@ -38,7 +39,7 @@ async function handleCreatedTab(tab){
     console.log("Tab created with ID: " + tab.id+ " and index " + tab.index);
     if(tab.id === browser.tabs.TAB_ID_NONE){ return; }
     let tabs = await browser.tabs.query({currentWindow: true})
-    let options = await getOptions()
+    let options = await getOptions(tab.windowId);
     // First Tab that exeeds limit will redirect to an 
     // info page and close shortly afterwards
     if(tabs.length == options.maxTabs + 1){
@@ -67,6 +68,12 @@ async function handleCreatedWindow(window){
     }
 };
 
+function handleClosedWindow(window){
+    let maxTabsKey = "maxTabs_" + window.id;
+    browser.storage.local.remove(maxTabsKey).then(console.log(maxTabsKey + "removed from storage", onError("storageRemove")))
+}
+
 // Add handlers to Events
 browser.tabs.onCreated.addListener(handleCreatedTab);
 browser.windows.onCreated.addListener(handleCreatedWindow);
+browser.windows.onCreated.addRemoved(handleClosedWindow);
